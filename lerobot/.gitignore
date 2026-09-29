@@ -1,0 +1,42 @@
+### Miscellaneous ###
+# W&B
+wandb/
+
+# Dev scripts
+.dev/
+
+# Data and Checkpoint folders
+data/
+outputs/
+checkpoints/
+
+# 🚀 [추가됨] 대용량 파일 확장자 강제 제외 (GitHub 100MB 제한 방지)
+# Model Weights
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.h5
+*.hdf5
+
+# Datasets & Media
+*.parquet
+*.csv
+*.mp4
+*.avi
+*.mkv
+*.tar
+*.tar.gz
+*.zip
+
+# Translations
+*.mo
+*.pot
+
+# Dev folders
+.cache/*
+*.stl
+*.urdf
+*.xml
+*.part

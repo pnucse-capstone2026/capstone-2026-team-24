@@ -1,0 +1,730 @@
+"""
+Jetson 쪽 실시간 추론 클라이언트.
+
+개선 사항
+- 카메라를 별도 thread에서 지속적으로 읽음
+- 메인 loop는 최신 프레임만 사용
+- JPEG quality 조절
+- TCP_NODELAY 적용
+- latency 세부 측정
+- 서버 응답 대기와 로컬 처리 시간을 분리
+- 기존 action/state 형식 유지
+
+사용법:
+
+python jetson_client.py \
+    --server_host localhost \
+    --server_port 9999 \
+    --duration 180 \
+    --debug
+"""
+
+import argparse
+import pickle
+import socket
+import struct
+import threading
+import time
+
+import cv2
+
+from lerobot.robots.so_follower.so_follower import SO101Follower
+from lerobot.robots.so_follower.config_so_follower import SO101FollowerConfig
+from lerobot.cameras.opencv import OpenCVCamera, OpenCVCameraConfig
+
+
+# ============================================================
+# 통신
+# ============================================================
+
+def recv_exact(sock, n):
+    buf = b""
+
+    while len(buf) < n:
+        chunk = sock.recv(n - len(buf))
+
+        if not chunk:
+            raise ConnectionError("서버 연결이 끊겼습니다.")
+
+        buf += chunk
+
+    return buf
+
+
+def recv_msg(sock):
+    length_bytes = recv_exact(sock, 4)
+    length = struct.unpack(">I", length_bytes)[0]
+
+    payload = recv_exact(sock, length)
+
+    return pickle.loads(payload)
+
+
+def send_msg(sock, obj):
+    payload = pickle.dumps(
+        obj,
+        protocol=pickle.HIGHEST_PROTOCOL,
+    )
+
+    sock.sendall(
+        struct.pack(">I", len(payload)) + payload
+    )
+
+
+# ============================================================
+# JPEG
+# ============================================================
+
+def frame_to_jpg_bytes(frame, quality=75):
+    ok, buf = cv2.imencode(
+        ".jpg",
+        frame,
+        [
+            cv2.IMWRITE_JPEG_QUALITY,
+            quality,
+        ],
+    )
+
+    if not ok:
+        raise RuntimeError("JPEG 인코딩 실패")
+
+    return buf.tobytes()
+
+
+def return_to_initial_position(robot, initial_position, duration_s=3.0, fps=50):
+    """Smoothly return the robot to its initial position."""
+    try:
+        current_obs = robot.get_observation()
+
+        current_pos = {
+            k: v
+            for k, v in current_obs.items()
+            if k in initial_position
+        }
+
+        steps = max(int(duration_s * fps), 1)
+
+        for step in range(1, steps + 1):
+            t = step / steps
+
+            action = {
+                k: current_pos[k] * (1 - t) + initial_position[k] * t
+                for k in current_pos
+            }
+
+            robot.send_action(action)
+            time.sleep(1.0 / fps)
+
+    except Exception as e:
+        print(f"[클라이언트] 초기 위치 복귀 실패: {e}")
+
+
+
+# ============================================================
+# Camera Worker
+# ============================================================
+
+class CameraWorker:
+    """
+    카메라를 별도 thread에서 계속 읽고
+    가장 최신 프레임만 유지한다.
+
+    main loop는 camera.read()를 기다리지 않는다.
+    """
+
+    def __init__(self, camera, name):
+        self.camera = camera
+        self.name = name
+
+        self.latest_frame = None
+
+        self.lock = threading.Lock()
+        self.stop_event = threading.Event()
+
+        self.thread = threading.Thread(
+            target=self._run,
+            daemon=True,
+            name=f"camera-{name}",
+        )
+
+        self.read_count = 0
+        self.last_read_time = None
+        self.last_exception = None
+
+    def start(self):
+        self.thread.start()
+
+    def _run(self):
+        while not self.stop_event.is_set():
+
+            try:
+                frame = self.camera.read()
+
+                with self.lock:
+                    self.latest_frame = frame
+                    self.read_count += 1
+                    self.last_read_time = time.perf_counter()
+
+            except Exception as e:
+                self.last_exception = e
+
+                print(
+                    f"[카메라:{self.name}] read 오류: {e}"
+                )
+
+                time.sleep(0.01)
+
+    def get_latest(self):
+        with self.lock:
+            if self.latest_frame is None:
+                return None
+
+            # numpy frame을 그대로 사용하기 때문에
+            # worker가 다음 프레임을 쓰기 전에 copy한다.
+            return self.latest_frame.copy()
+
+    def stop(self):
+        self.stop_event.set()
+
+        if self.thread.is_alive():
+            self.thread.join(timeout=2.0)
+
+
+# ============================================================
+# Main
+# ============================================================
+
+def main():
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--server_host",
+        type=str,
+        required=True,
+    )
+
+    parser.add_argument(
+        "--server_port",
+        type=int,
+        default=9999,
+    )
+
+    parser.add_argument(
+        "--duration",
+        type=float,
+        default=180.0,
+    )
+
+    parser.add_argument(
+        "--jpeg_quality",
+        type=int,
+        default=75,
+    )
+
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+    )
+
+    parser.add_argument(
+        "--print_every",
+        type=int,
+        default=10,
+        help="몇 step마다 debug 출력할지",
+    )
+    parser.add_argument(
+        "--dry_run",
+        action="store_true",
+        help="실제 로봇에 action을 보내지 않고 추론만 수행",
+    )
+
+    parser.add_argument(
+        "--max_steps",
+        type=int,
+        default=None,
+        help="최대 실행 step 수",
+    )
+    
+    parser.add_argument(
+        "--environment_state",
+        type=int,
+        choices=[0, 1],
+        required=True,
+        help="task 구분: 0=task1, 1=task2",
+    )
+
+    args = parser.parse_args()
+
+    # ========================================================
+    # Robot
+    # ========================================================
+
+    robot_config = SO101FollowerConfig(
+        port="/dev/so101_follower",
+        id="follower",
+    )
+
+    robot = SO101Follower(robot_config)
+
+    robot.connect()
+    
+    initial_position = robot.get_observation()
+
+    print("[클라이언트] 로봇 연결 완료")
+
+    # ========================================================
+    # Cameras
+    # ========================================================
+
+    top_cam = OpenCVCamera(
+        OpenCVCameraConfig(
+            index_or_path="/dev/cam_top",
+            width=640,
+            height=480,
+            fps=30,
+        )
+    )
+
+    wrist_cam = OpenCVCamera(
+        OpenCVCameraConfig(
+            index_or_path="/dev/cam_wrist",
+            width=640,
+            height=480,
+            fps=30,
+        )
+    )
+
+    top_cam.connect()
+    wrist_cam.connect()
+
+    print("[클라이언트] 카메라 연결 완료")
+
+    # ========================================================
+    # Camera workers
+    # ========================================================
+
+    top_worker = CameraWorker(
+        top_cam,
+        "top",
+    )
+
+    wrist_worker = CameraWorker(
+        wrist_cam,
+        "wrist",
+    )
+
+    top_worker.start()
+    wrist_worker.start()
+
+    print("[클라이언트] 카메라 worker 시작")
+
+    # --------------------------------------------------------
+    # 첫 프레임 확보
+    # --------------------------------------------------------
+
+    print("[클라이언트] 첫 카메라 프레임 대기...")
+
+    wait_start = time.perf_counter()
+
+    while True:
+
+        top_frame = top_worker.get_latest()
+        wrist_frame = wrist_worker.get_latest()
+
+        if top_frame is not None and wrist_frame is not None:
+            break
+
+        if time.perf_counter() - wait_start > 5.0:
+            raise RuntimeError(
+                "5초 동안 카메라 프레임을 얻지 못했습니다."
+            )
+
+        time.sleep(0.001)
+
+    print("[클라이언트] 첫 프레임 확보")
+
+    # ========================================================
+    # Socket
+    # ========================================================
+
+    sock = socket.socket(
+        socket.AF_INET,
+        socket.SOCK_STREAM,
+    )
+
+    # 작은 packet을 즉시 전송
+    sock.setsockopt(
+        socket.IPPROTO_TCP,
+        socket.TCP_NODELAY,
+        1,
+    )
+
+    print(
+        f"[클라이언트] 서버 연결 시도: "
+        f"{args.server_host}:{args.server_port}"
+    )
+
+    sock.connect(
+        (
+            args.server_host,
+            args.server_port,
+        )
+    )
+
+    print(
+        f"[클라이언트] 서버 연결됨: "
+        f"{args.server_host}:{args.server_port}"
+    )
+
+    # ========================================================
+    # Main loop
+    # ========================================================
+
+    start_time = time.perf_counter()
+
+    step = 0
+
+    previous_action = None
+
+    try:
+
+        while (
+            time.perf_counter() - start_time < args.duration
+            and (args.max_steps is None or step < args.max_steps)
+        ):
+
+            loop_start = time.perf_counter()
+
+            # =================================================
+            # 1. 최신 camera frame 가져오기
+            # =================================================
+
+            t = time.perf_counter()
+
+            top_frame = top_worker.get_latest()
+            wrist_frame = wrist_worker.get_latest()
+
+            camera_ms = (
+                time.perf_counter() - t
+            ) * 1000.0
+
+            if top_frame is None or wrist_frame is None:
+                print(
+                    "[클라이언트] 카메라 프레임 없음"
+                )
+                continue
+
+            # =================================================
+            # 2. Robot state
+            # =================================================
+
+            t = time.perf_counter()
+
+            obs = robot.get_observation()
+
+            state = obs.get(
+                "observation.state",
+                None,
+            )
+
+            # -------------------------------------------------
+            # SO101 실제 observation 구조 대응
+            # -------------------------------------------------
+
+            if state is None:
+
+                state_keys = [
+                    "shoulder_pan.pos",
+                    "shoulder_lift.pos",
+                    "elbow_flex.pos",
+                    "wrist_flex.pos",
+                    "wrist_roll.pos",
+                    "gripper.pos",
+                ]
+
+                try:
+                    state = [
+                        obs[key]
+                        for key in state_keys
+                    ]
+
+                except KeyError as e:
+                    raise KeyError(
+                        "SO101 observation에서 "
+                        f"{e}를 찾을 수 없습니다.\n"
+                        f"현재 keys={list(obs.keys())}"
+                    )
+
+            state_list = (
+                state.tolist()
+                if hasattr(state, "tolist")
+                else list(state)
+            )
+
+            state_ms = (
+                time.perf_counter() - t
+            ) * 1000.0
+
+            # =================================================
+            # 3. JPEG
+            # =================================================
+
+            t = time.perf_counter()
+
+            top_jpg = frame_to_jpg_bytes(
+                top_frame,
+                args.jpeg_quality,
+            )
+
+            wrist_jpg = frame_to_jpg_bytes(
+                wrist_frame,
+                args.jpeg_quality,
+            )
+
+            jpeg_ms = (
+                time.perf_counter() - t
+            ) * 1000.0
+
+            # =================================================
+            # 4. Request
+            # =================================================
+            
+            request = {
+                "images": {
+                    "top": top_jpg,
+                    "wrist": wrist_jpg,
+                },
+                "state": state_list,
+                "environment_state": [
+                    args.environment_state
+                ],
+            }
+
+            # =================================================
+            # 5. Send
+            # =================================================
+
+            t = time.perf_counter()
+
+            send_msg(
+                sock,
+                request,
+            )
+
+            send_ms = (
+                time.perf_counter() - t
+            ) * 1000.0
+
+            # =================================================
+            # 6. Server response
+            # =================================================
+
+            t = time.perf_counter()
+
+            response = recv_msg(sock)
+
+            recv_ms = (
+                time.perf_counter() - t
+            ) * 1000.0
+
+            # =================================================
+            # 7. Action
+            # =================================================
+
+            action = response["action"]
+
+            # 서버가 list를 반환하는 현재 구조 유지
+            if not isinstance(action, (list, tuple)):
+                raise TypeError(
+                    "서버 action이 list/tuple이 아닙니다: "
+                    f"{type(action)}"
+                )
+
+            # -------------------------------------------------
+            # Action → SO101 dictionary
+            # -------------------------------------------------
+
+            action_keys = [
+                "shoulder_pan.pos",
+                "shoulder_lift.pos",
+                "elbow_flex.pos",
+                "wrist_flex.pos",
+                "wrist_roll.pos",
+                "gripper.pos",
+            ]
+
+            if len(action) != len(action_keys):
+                raise ValueError(
+                    f"action dimension 오류: "
+                    f"{len(action)} != {len(action_keys)}"
+                )
+
+            action_dict = {
+                key: float(value)
+                for key, value in zip(
+                    action_keys,
+                    action,
+                )
+            }
+
+            # =================================================
+            # 8. Robot send
+            # =================================================
+
+            t = time.perf_counter()
+
+            if not args.dry_run:
+                robot.send_action(action_dict)
+
+            robot_ms = (
+                time.perf_counter() - t
+            ) * 1000.0
+
+            # =================================================
+            # Total
+            # =================================================
+
+            total_ms = (
+                time.perf_counter()
+                - loop_start
+            ) * 1000.0
+            
+            # =================================================
+            # 제어 주기 제한: 30 Hz
+            # =================================================
+            target_hz = 30.0
+            target_interval = 1.0 / target_hz
+
+            elapsed = time.perf_counter() - loop_start
+            sleep_time = target_interval - elapsed
+
+            if sleep_time > 0:
+                time.sleep(sleep_time)
+
+            # =================================================
+            # Debug
+            # =================================================
+
+            if (
+                args.debug
+                and (
+                    step % args.print_every == 0
+                    or total_ms > 100.0
+                )
+            ):
+
+                print()
+                print("=" * 70)
+                print(
+                    f"STEP {step}"
+                )
+                print("=" * 70)
+
+                print(
+                    f"[TIMING] "
+                    f"camera={camera_ms:.1f}ms "
+                    f"state={state_ms:.1f}ms "
+                    f"jpeg={jpeg_ms:.1f}ms "
+                    f"send={send_ms:.1f}ms "
+                    f"recv={recv_ms:.1f}ms "
+                    f"robot={robot_ms:.1f}ms "
+                    f"total={total_ms:.1f}ms"
+                )
+
+                fps = (
+                    1000.0 / total_ms
+                    if total_ms > 0
+                    else 0
+                )
+
+                print(
+                    f"[RATE] "
+                    f"{fps:.2f} Hz"
+                )
+
+                print(
+                    f"[JPEG] "
+                    f"top={len(top_jpg) / 1024:.1f} KB "
+                    f"wrist={len(wrist_jpg) / 1024:.1f} KB"
+                )
+
+                print(
+                    "[STATE]",
+                    state_list,
+                )
+
+                print(
+                    "[ACTION]",
+                    action,
+                )
+
+                if previous_action is not None:
+
+                    delta = [
+                        float(a) - float(b)
+                        for a, b in zip(
+                            action,
+                            previous_action,
+                        )
+                    ]
+
+                    print(
+                        "[ACTION DELTA]",
+                        delta,
+                    )
+
+            previous_action = list(action)
+
+            step += 1
+
+    except KeyboardInterrupt:
+
+        print(
+            "\n[클라이언트] Ctrl+C 종료"
+        )
+
+    finally:
+
+        print(
+            "[클라이언트] 종료 처리..."
+        )
+
+        try:
+            sock.close()
+        except Exception:
+            pass
+
+        try:
+            top_worker.stop()
+            wrist_worker.stop()
+        except Exception:
+            pass
+
+        try:
+            print("[클라이언트] 초기 위치로 복귀 중...")
+            return_to_initial_position(robot, initial_position)
+            print("[클라이언트] 초기 위치 복귀 완료")
+        except Exception as e:
+            print(f"[클라이언트] 초기 위치 복귀 실패: {e}")
+
+        try:
+            robot.disconnect()
+        except Exception:
+            pass
+
+        try:
+            top_cam.disconnect()
+        except Exception:
+            pass
+
+        try:
+            wrist_cam.disconnect()
+        except Exception:
+            pass
+
+        print("[클라이언트] 종료 완료")
+
+
+if __name__ == "__main__":
+    main()
