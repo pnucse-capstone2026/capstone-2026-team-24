@@ -115,7 +115,7 @@ bash scripts/rollout.sh
 
 ### 6. 소개 자료 및 시연 영상
 #### 6.1. 프로젝트 소개 자료
-> PPT 등
+[![Presentation](https://img.shields.io/badge/Canva-PPT_발표_자료-00C4CC?style=for-the-badge&logo=canva&logoColor=white)](https://canva.link/gwikvqrvoe0xnjp)
 #### 6.2. 시연 영상
 > 영상 링크 또는 주요 장면 설명
 
