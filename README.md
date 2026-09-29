@@ -32,11 +32,35 @@
 * **안전 기반 제어를 통한 하드웨어 지속가능성 확보**: 인공지능 모델의 예측 오류가 하드웨어 파손으로 이어지지 않도록, 각 관절의 허용 위치 범위와 Step당 최대 변화량을 물리적으로 제한하는 이중 안전 로직을 구현하여 로봇 시스템의 안전성과 수명을 보장합니다.
 
 ### 3. 시스템 설계
+
 #### 3.1. 시스템 구성도
-> 이미지 혹은 텍스트로 시스템 아키텍쳐 작성
->
+
+<img alt="image" src="images/시스템 구성도.png" />
+
+본 프로젝트의 시스템은 로봇의 실시간 제어와 고연산 AI 추론의 부하를 분산하기 위해 서버-클라이언트 기반의 구조로 설계되었습니다.
+
+* **Jetson Client (엣지 제어 환경)**: 실제 로봇(LeRobot SO-101)과 연결되어 작업 공간의 카메라 영상(상단/손목)과 로봇의 현재 관절 상태를 수집합니다. 수집된 영상은 JPEG로 압축되어 관절 데이터와 함께 서버로 전송되며, 서버로부터 수신된 동작 명령을 팔로워 암에 즉각적으로 적용합니다.
+
+* **추론 Server (GPU 서버)**: 클라이언트로부터 TCP Socket을 통해 전달받은 관측 데이터를 ACT 정책 모델에 입력하여 다음 로봇의 행동을 Chunk 단위로 생성하고 이를 다시 클라이언트로 반환합니다.
+
 #### 3.2. 사용 기술
-> 프론트엔드, 백엔드, API 등 구체 기술 스택
+
+**Hardware**
+* **Edge Device**: Jetson Orin Nano (ARM64 아키텍처) 
+* **Server Device**: NVIDIA RTX 5090 (32GB VRAM GPU 서버) 
+* **Robot**: LeRobot SO-101 (Leader-Follower 구조, 6자유도 매니퓰레이터) 
+* **Sensor**: 640x480 해상도(30FPS)의 상단(Top-view) 및 손목(Wrist-view) 카메라 
+
+**Software & Environment**
+* **OS / Environment**: JetPack 6.2.2, Docker 컨테이너, Conda 가상환경 
+* **Robot Control**: LeRobot Framework, ROS 2 
+* **통신 (Network)**: TCP Socket 통신 , USB Serial/UVC 통신
+
+**AI & Machine Learning**
+* **Core Model**: ACT (Action Chunking with Transformers), DAgger (Dataset Aggregation) 알고리즘 
+* **Framework**: PyTorch (CUDA 기반 GPU 연산 환경) 
+* **Vision Processing**: OpenCV (카메라 인터페이스 및 실시간 프레임 획득/압축) 
+* **MLOps & Tracking**: Hugging Face Hub (학습 데이터셋 및 정책 모델 Checkpoint 관리), Weights & Biases (W&B, 학습 Loss 및 지표 모니터링) 
 
 ### 4. 개발 결과
 #### 4.1. 전체 시스템 흐름도
