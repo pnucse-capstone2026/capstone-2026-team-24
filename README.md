@@ -54,6 +54,36 @@
 >
 #### 5.1. 설치절차 및 실행 방법
 > 설치 명령어 및 준비 사항, 실행 명령어, 포트 정보 등
+
+##### 5.1.1. 환경 세팅 (학교 GPU 서버, 최초 1회)
+```bash
+bash scripts/setup_env.sh
+```
+
+##### 5.1.2. 데이터 수집 (Jetson Orin Nano)
+```bash
+export HF_USER=s1eepypillow
+bash scripts/record.sh
+```
+
+##### 5.1.3. 데이터셋 병합
+```bash
+export HF_USER=s1eepypillow
+bash scripts/merge_dataset.sh
+```
+
+##### 5.1.4. ACT 학습 (학교 GPU 서버)
+```bash
+tmux new -s train
+export HF_USER=s1eepypillow
+bash scripts/train.sh
+# Ctrl+B, D 로 세션에서 빠져나오기 (백그라운드로 계속 진행됨)
+```
+
+##### 5.1.5. 실물 로봇 배포 및 평가 (Jetson Orin Nano)
+```bash
+export HF_USER=s1eepypillow
+bash scripts/rollout.sh
 #### 5.2. 오류 발생 시 해결 방법
 > 선택 사항, 자주 발생하는 오류 및 해결책 등
 
