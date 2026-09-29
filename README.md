@@ -150,7 +150,7 @@ bash scripts/rollout.sh
 원격 서버 통신이 불가능한 상황이라면, 분산 처리 아키텍처를 우회하고 Jetson Orin Nano 자체에서 로컬 추론을 실행하는 명령어로 전환해야 합니다.
     - 추론 서버에 의존하는 스크립트 대신, 배포 시 준비된 로컬 실행 명령어를 사용하여 Jetson 디바이스 단독으로 모델을 구동합니다. (단, 서버 추론에 비해 제어 Hz가 다소 낮아질 수 있습니다.)
 
-- [`docs/troubleshooting.md`](.troubleshooting.md) — 지금까지 겪은 에러/해결법 모음
+- [`troubleshooting.md`](.troubleshooting.md) — 지금까지 겪은 에러/해결법 모음
 
 ### 6. 소개 자료 및 시연 영상
 #### 6.1. 프로젝트 소개 자료
