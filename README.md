@@ -120,27 +120,27 @@ bash scripts/setup_env.sh
 
 ##### 5.1.2. 데이터 수집 (Jetson Orin Nano)
 ```bash
-export HF_USER=s1eepypillow
+export HF_USER={USERNAME}
 bash scripts/record.sh
 ```
 
 ##### 5.1.3. 데이터셋 병합
 ```bash
-export HF_USER=s1eepypillow
+export HF_USER={USERNAME}
 bash scripts/merge_dataset.sh
 ```
 
 ##### 5.1.4. ACT 학습 (학교 GPU 서버)
 ```bash
 tmux new -s train
-export HF_USER=s1eepypillow
+export HF_USER={USERNAME}
 bash scripts/train.sh
 # Ctrl+B, D 로 세션에서 빠져나오기 (백그라운드로 계속 진행됨)
 ```
 
 ##### 5.1.5. 실물 로봇 배포 및 평가 (Jetson Orin Nano)
 ```bash
-export HF_USER=s1eepypillow
+export HF_USER={USERNAME}
 bash scripts/rollout.sh
 ```
 
