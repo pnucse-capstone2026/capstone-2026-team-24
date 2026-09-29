@@ -134,7 +134,7 @@ bash scripts/rollout.sh
 #### 6.1. 프로젝트 소개 자료
 [![발표 자료](https://github.com/user-attachments/assets/6bbf73ca-a69c-4c12-9fe6-b74a31475e43)](https://canva.link/gwikvqrvoe0xnjp)
 #### 6.2. 시연 영상
-> 영상 링크 또는 주요 장면 설명
+[![2026 전기 졸업과제 24 Formula 1](https://img.youtube.com/vi/0IM3mUeg8e0/0.jpg)](https://www.youtube.com/watch?v=0IM3mUeg8e0)
 
 ### 7. 팀 구성
 
