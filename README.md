@@ -82,26 +82,8 @@
 >
 #### 4.3. 디렉토리 구조
 
-보고서에 명시된 주요 모듈(LeRobot 기반 환경, TCP 소켓 통신, Jetson 엣지 클라이언트 및 GPU 서버 분산 처리)을 바탕으로 구성한 예상 디렉토리 구조입니다.
+https://github.com/pnucse-capstone2026/capstone-2026-team-24/tree/main/lerobot
 
-```text
-📦 lerobot_project
- ┣ 📂 client_jetson/           # Jetson Orin Nano (Edge) 실행 환경
- ┃ ┣ 📜 camera_worker.py       # 실시간 상단/손목 카메라 영상 수집 및 JPEG 압축 스레드
- ┃ ┣ 📜 robot_controller.py    # SO-101 Follower Arm 관절 제어 및 안전 로직 적용
- ┃ ┗ 📜 tcp_client.py          # 서버로 상태 전송 및 행동 명령 수신 (TCP Socket)
- ┣ 📂 server_gpu/              # GPU 추론 및 학습 서버 환경
- ┃ ┣ 📜 tcp_server.py          # 클라이언트 요청 수신 및 추론 결과 반환
- ┃ ┣ 📜 act_inference.py       # ACT 모델 로드, Temporal Ensembling 추론 및 Environment State 반영
- ┃ ┗ 📜 train_act.py           # Hugging Face Hub 데이터셋 로드 및 ACT 파라미터 학습 실행
- ┣ 📂 data_collection/         # 데이터 수집 및 DAgger 파이프라인
- ┃ ┣ 📜 teleoperation.py       # Leader-Follower 원격 조작 기록 및 LeRobot 포맷 변환
- ┃ ┗ 📜 dagger_correction.py   # 전문가 개입(Human-Gated) 실패 구간 보정 데이터 기록
- ┣ 📂 config/                  # 설정 파일
- ┃ ┣ 📜 act_policy_config.yaml # Chunk Size, Action Steps 등 하이퍼파라미터 설정
- ┃ ┗ 📜 safety_limits.yaml     # 관절별 최대/최소 가동 범위 및 Step당 최대 변화량 설정
- ┗ 📜 README.md
-```
 #### 4.4. 산업체 멘토링 의견 및 반영 사항
 본 프로젝트 진행 과정에서 산학협력 멘토의 피드백을 수렴하여 시스템 아키텍처를 개선하였습니다.
 
@@ -167,6 +149,8 @@ bash scripts/rollout.sh
 * 해결 방법 (로컬 폴백 모드):
 원격 서버 통신이 불가능한 상황이라면, 분산 처리 아키텍처를 우회하고 Jetson Orin Nano 자체에서 로컬 추론을 실행하는 명령어로 전환해야 합니다.
     - 추론 서버에 의존하는 스크립트 대신, 배포 시 준비된 로컬 실행 명령어를 사용하여 Jetson 디바이스 단독으로 모델을 구동합니다. (단, 서버 추론에 비해 제어 Hz가 다소 낮아질 수 있습니다.)
+
+- [`docs/troubleshooting.md`](.troubleshooting.md) — 지금까지 겪은 에러/해결법 모음
 
 ### 6. 소개 자료 및 시연 영상
 #### 6.1. 프로젝트 소개 자료
