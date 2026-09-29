@@ -82,26 +82,8 @@
 >
 #### 4.3. 디렉토리 구조
 
-보고서에 명시된 주요 모듈(LeRobot 기반 환경, TCP 소켓 통신, Jetson 엣지 클라이언트 및 GPU 서버 분산 처리)을 바탕으로 구성한 예상 디렉토리 구조입니다.
+https://github.com/pnucse-capstone2026/capstone-2026-team-24/tree/main/lerobot
 
-```text
-📦 lerobot_project
- ┣ 📂 client_jetson/           # Jetson Orin Nano (Edge) 실행 환경
- ┃ ┣ 📜 camera_worker.py       # 실시간 상단/손목 카메라 영상 수집 및 JPEG 압축 스레드
- ┃ ┣ 📜 robot_controller.py    # SO-101 Follower Arm 관절 제어 및 안전 로직 적용
- ┃ ┗ 📜 tcp_client.py          # 서버로 상태 전송 및 행동 명령 수신 (TCP Socket)
- ┣ 📂 server_gpu/              # GPU 추론 및 학습 서버 환경
- ┃ ┣ 📜 tcp_server.py          # 클라이언트 요청 수신 및 추론 결과 반환
- ┃ ┣ 📜 act_inference.py       # ACT 모델 로드, Temporal Ensembling 추론 및 Environment State 반영
- ┃ ┗ 📜 train_act.py           # Hugging Face Hub 데이터셋 로드 및 ACT 파라미터 학습 실행
- ┣ 📂 data_collection/         # 데이터 수집 및 DAgger 파이프라인
- ┃ ┣ 📜 teleoperation.py       # Leader-Follower 원격 조작 기록 및 LeRobot 포맷 변환
- ┃ ┗ 📜 dagger_correction.py   # 전문가 개입(Human-Gated) 실패 구간 보정 데이터 기록
- ┣ 📂 config/                  # 설정 파일
- ┃ ┣ 📜 act_policy_config.yaml # Chunk Size, Action Steps 등 하이퍼파라미터 설정
- ┃ ┗ 📜 safety_limits.yaml     # 관절별 최대/최소 가동 범위 및 Step당 최대 변화량 설정
- ┗ 📜 README.md
-```
 #### 4.4. 산업체 멘토링 의견 및 반영 사항
 본 프로젝트 진행 과정에서 산학협력 멘토의 피드백을 수렴하여 시스템 아키텍처를 개선하였습니다.
 
