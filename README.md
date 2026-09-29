@@ -126,6 +126,26 @@ export HF_USER={USERNAME}
 bash scripts/rollout.sh
 ```
 
+##### 5.1.6. GPU 서버에서 추론 서버 실행
+
+```bash
+python server_inference.py \
+  --policy_path {Hugging_Face_사용자명}/{모델_저장소명} \
+  --dataset_repo_id {Hugging_Face_사용자명}/{데이터셋_저장소명} \
+  --dataset_root {로컬_데이터셋_경로} \
+  --port {서버_포트} \
+  --use_env_state
+```
+
+##### 5.1.7. Jetson에서 클라이언트 실행
+
+```bash
+python jetson_client.py \
+  --server_host {GPU_서버_IP} \
+  --server_port {서버_포트} \
+  --environment_state {Task_ID}
+```
+
 #### 5.2. 오류 발생 시 해결 방법
 
  [`troubleshooting.md`](./docs/troubleshooting.md) — 지금까지 겪은 에러/해결법 모음
