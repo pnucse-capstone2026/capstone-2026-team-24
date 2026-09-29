@@ -1,3 +1,12 @@
+## 🤗 Hugging Face
+
+| Category        | Link                                                              |
+| --------------- | ----------------------------------------------------------------- |
+| 📊 **Datasets** | [View all datasets](https://huggingface.co/s1eepypillow/datasets) |
+| 🧠 **Models**   | [View all models](https://huggingface.co/s1eepypillow/models)     |
+| 👤 **Profile**  | [s1eepypillow](https://huggingface.co/s1eepypillow)               |
+
+
 ### 1. 프로젝트 배경
 
 #### 1.1. 시장 현황 및 문제점
