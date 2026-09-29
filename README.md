@@ -120,9 +120,60 @@ bash scripts/rollout.sh
 > 영상 링크 또는 주요 장면 설명
 
 ### 7. 팀 구성
-#### 7.1. 팀원별 소개 및 역할 분담
->
-#### 7.2. 팀원 별 참여 후기
-> 개별적으로 느낀 점, 협업, 기술적 어려움 극복 사례 등
 
-### 8. 참고 문헌 및 출처
+#### 7.1. 팀원별 소개 및 역할 분담
+
+*   **윤주연 (202255576, forsterix104@gmail.com)** 
+    *   모방학습을 위한 Pick & Place 데이터셋 수집 
+    *   모델 분석 및 하이퍼파라미터 테스팅 
+    *   서버를 통한 모델 학습 환경 구축 
+
+*   **강태훈 (202155503, kangth2103@gmail.com)** 
+    *   LeRobot SO-101 하드웨어 구성 
+    *   데이터셋 수집 전략 수립 및 수정 
+    *   DAgger Correction을 위한 경로 수정 데이터셋 수집 
+
+*   **송명근 (202355713, smk00513@naver.com)** 
+    *   LeRobot SO-101 제어 환경 구축 
+    *   다중 과제 해결을 위한 멀티태스크 환경 구축 
+    *   모델 학습 및 수행 결과 분석 
+
+#### 7.2. 팀원 별 참여 후기
+
+**👩‍💻 윤주연**
+> 모델의 성능을 극대화하기 위해 다양한 하이퍼파라미터 중에서 최적의 값을 찾아내는 테스팅 과정을 담당했습니다. 이 과정에서 CVAE 기반의 ACT 모델 구조와 잠재 공간에 대해 심도 있게 연구하게 되었고, 결과적으로 프로젝트의 전반적인 완성도를 높이는 데 큰 도움이 되었습니다.
+
+**👨‍💻 강태훈**
+> 모델의 한계를 극복하기 위해 DAgger 기반의 복구 궤적 데이터셋을 현 프로젝트에 적용하는 과정에서 많은 시행착오를 겪었습니다. 로봇이 헷갈려 하는 구간에서 어떤 방식의 실패-복구 데이터를 쌓아야 할지 수집 전략을 고민하며, 데이터 품질 관리와 시스템 안정화에 기여할 수 있었습니다.
+
+**👨‍💻 송명근**
+> Environment State를 활용하여 단일 ACT 모델이 멀티태스킹(Task 1, Task 2)이 가능한지 고민하고 이를 시스템에 직접 적용해 보았습니다. 이 과정에서 여러 시행착오를 거쳤지만, 결과적으로 환경 변화와 다양한 조건에서도 유연하게 동작하는 강건한(Robust) 제어 모델을 구축하는 데 기여할 수 있어 뜻깊었습니다.
+
+## 8. 참고 문헌 및 출처
+
+### 📖 논문 및 알고리즘 연구 (Research & Papers)
+* **모방학습 (Imitation Learning/ACT)**: [Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware](https://arxiv.org/abs/2304.13705)
+
+* **LeRobot 오픈소스 라이브러리 논문**: LEROBOT: AN OPEN-SOURCE LIBRARY FOR END-TO-END ROBOT LEARNING
+
+
+### 🤖 하드웨어 스펙 (Hardware & Specs)
+
+* **하드웨어 스택 명세서**: [LeRobot SO-101 Hardware Stack (Hugging Face)](https://huggingface.co/docs/lerobot/so101)
+* **Jetson Orin Nano 스펙**: 
+  * [Waveshare Wiki Overview](https://www.waveshare.com/wiki/Jetson_Orin_Nano#Overview)
+  * [Jetbot Bill of Materials (Orin)](https://jetbot.org/master/bill_of_materials_orin.html)
+
+### 💻 프레임워크 및 데이터셋 (Software & Dataset)
+* **LeRobot 공식 GitHub**: [huggingface/lerobot](https://github.com/huggingface/lerobot/tree/main)
+* **LeRobot 데이터셋 재생 가이드**: [Roboseasy Dataset Replay Docs](https://roboseasy.ai/docs/lerobot-so-arm/dataset-replay)
+* **Pick & Place 데이터셋 예시**: [LeRobot-SO101-Pick-Place (Hugging Face)](https://huggingface.co/datasets/aswinkumar99/LeRobot-SO101-Pick-Place)
+
+### ⚙️ 환경 구축 및 초기 설정 (Environment Setup & Configuration)
+* **Jetson Orin Nano 초기 설정**
+  * [NVIDIA Developer Get Started Guide](https://developer.nvidia.com/embedded/learn/get-started-jetson-orin-nano-devkit#intro)
+  * [NVIDIA SDK Manager 다운로드 및 실행](https://docs.nvidia.com/sdk-manager/download-run-sdkm/index.html)
+
+* **LeRobot 환경 구현 가이드**
+  * [Medium: LeRobot on Jetson Orin Nano](https://medium.com/@marko.briesemann/lerobot-on-jetson-orin-nano-seeed-studio-82986429509a)
+  * [Jetson AI Lab: LeRobot on Jetson (Docker 기반)](https://www.jetson-ai-lab.com/archive/lerobot.html)
