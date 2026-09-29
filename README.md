@@ -84,6 +84,7 @@ bash scripts/train.sh
 ```bash
 export HF_USER=s1eepypillow
 bash scripts/rollout.sh
+```
 
 #### 5.2. 오류 발생 시 해결 방법
 > 선택 사항, 자주 발생하는 오류 및 해결책 등
