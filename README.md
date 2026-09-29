@@ -1,67 +1,36 @@
-# Template for Capstone
-이 레파지토리는 학생들이 캡스톤 프로젝트 결과물을 위한 레파지토리 생성시에 참고할 내용들을 담고 있습니다.
-1. 레파지토리 생성
-2. 레파지토리 구성
-3. 레파지토리 제출 
-4. README.md 가이드라인
-5. README.md 작성팁
-
----
-
-## 1. 레파지토리 생성
-- [https://classroom.github.com/a/i3v_IYnd]
-- 위 Github Classroom 링크에 접속해 본인 조의 github 레파지토리를 생성하세요.
-
-<img width="1171" height="592" alt="image" src="https://github.com/user-attachments/assets/22919da2-dee5-4ca8-98f1-3dd63d7a6013" />
-
-
-- 레포지토리 생성 시 팀명은 `TEAM-{조 번호}` 형식으로 생성하세요.
-- 예를 들어, 2026년도 3조의 팀명은 `TEAM-03` 입니다.
-- 이 경우 `Capstone2026-team-03`이란 이름으로 레파지토리가 생성됩니다.
-
----
-
-## 2. 레파지토리 구성
-- 레파지토리 내에 README.md 파일 생성하고 아래의 가이드라인과 작성팁을 참고하여 README.md 파일을 작성하세요. (이 레파지토리의 SAMPLE_README.md 참조)
-- 레파지토리 내에 docs 디렉토리를 생성하고 docs 디렉토리 내에는 과제 수행 하면서 작성한 각종 보고서, 발표자료를 올려둡니다. (이 레파지토리의 docs 디렉토리 참조)
-- 그 밖에 레파지토리의 폴더 구성은 과제 결과물에 따라 자유롭게 구성하되 가급적 코드의 목적이나 기능에 따라 디렉토리를 나누어 구성하세요.
-
----
-
-## 3. 레파지토리 제출 
-
-- **`[주의]` 레파지토리 제출**은 해당 레파지토리의 ownership을 **학과 계정**으로 넘기는 것이므로 되돌릴 수 없습니다.
-- **레파지토리 제출** 전, 더 이상 수정 사항이 없는지 다시 한번 확인하세요.
-- github 레파지토리에서 Settings > General > Danger zone > Transfer 클릭
-  <img src="https://github.com/user-attachments/assets/cb2361d4-e07e-4b5d-9116-aa80dddd8a8b" alt="소유주 변경 경로" width="500" />
-  
-- [ Specify an organization or username ]에 'PNUCSE'를 입력하고 확인 메세지를 입력하세요.
-  <img src="https://github.com/user-attachments/assets/7c63955d-dcfe-4ac3-bdb6-7d2620575f3a" alt="소유주 변경" width="400" />
-
----
-
-## 4. README.md 가이드 라인
-- README 파일 작성시에 아래의 5가지 항목의 내용은 필수적으로 포함해야 합니다.
-- 아래의 항목이외에 프로젝트의 이해를 돕기 위한 내용을 추가해도 됩니다.
-- SAMPLE_README.md 이 단순한 형태의 예제이니 참고하세요.
-
-```markdown
 ### 1. 프로젝트 배경
-#### 1.1. 국내외 시장 현황 및 문제점
-> 시장 조사 및 기존 문제점 서술
+
+#### 1.1. 시장 현황 및 문제점
+* **산업 현장의 조작 작업 자동화**: 제조 및 물류 산업 현장에서는 물체를 집어 지정된 위치로 이동시키는 Pick-and-Place 작업을 로봇 매니퓰레이터로 자동화하여 생산 공정의 효율을 높이고 있습니다.
+* **규칙 기반 제어의 한계**: 기존 시스템은 작업 대상과 환경이 일정하다는 가정하에 사람이 사전에 정의한 궤적과 순서에 따라 로봇을 제어하는 방식을 주로 사용해 왔습니다. 실제 작업 환경에서는 물체가 무작위로 배치되거나 주변 환경이 변화하는 등 불확실성이 존재하며, 기존 방식은 이러한 새로운 조건에 대응하기 위해 매번 복잡한 규칙과 예외 상황을 추가로 설계해야 하는 한계가 있습니다.
+* **다단계 정밀 작업에서의 누적 오차**: 여러 개의 블록을 순차적으로 적재하는 수직 적재 작업의 경우, 각 단계에서 발생한 객체 인식 및 위치 제어 오차가 연쇄적으로 누적되어 작업 실패로 이어지는 기술적 복잡성이 존재합니다.
 
 #### 1.2. 필요성과 기대효과
-> 왜 이 프로젝트가 필요한지, 기대되는 효과 등
+* **AI 기반 지능형 자율 제어 시스템의 필요성**: 정형화된 환경에서의 단순 반복 작업에서 벗어나, 카메라 등 비전 센서를 통해 주변 상황을 실시간으로 관측하고 적절한 행동을 스스로 판단하여 결정하는 지능형 로봇 시스템으로의 패러다임 전환이 필수적입니다.
+* **모방학습을 통한 제어 복잡성 해소**: 조작자가 원격 조작을 통해 직접 시연한 행동 궤적 데이터를 활용하여 정책을 학습시키면, 복잡한 제어 규칙을 사람이 직접 작성하지 않고도 로봇이 실제 작업에 필요한 동작을 효과적으로 습득할 수 있습니다.
+* **기존 연구의 한계 극복 및 환경 적응력 확보**: 대상의 시작 위치가 고정된 제한적인 기존 환경을 넘어서기 위해 본 프로젝트가 필요합니다. 시각적 노이즈가 존재하고 블록의 위치가 무작위로 변하는 복잡한 환경에서도 안정적인 조작 성능을 확보하는 효과를 기대할 수 있습니다.
+* **최종 기대효과**: 결과적으로 카메라를 통한 작업 환경 인식과 행동 생성을 연결하여, 무작위 배치된 블록들에 대해 연속적인 이동 및 적재 작업을 자율적으로 완수하는 지능형 로봇 제어 시스템을 구현할 수 있습니다.
 
 ### 2. 개발 목표
+
 #### 2.1. 목표 및 세부 내용
-> 전체적인 개발 목표, 주요 기능 및 기획 내용
+본 프로젝트의 최종 목표는 LeRobot SO-101 로봇 팔을 활용하여 무작위로 배치된 블록을 비전 센서로 인식하고, 지정된 영역에 자율적으로 이동 및 적재할 수 있는 지능형 로봇 제어 시스템을 구축하는 것입니다.
+* **Teleoperation 기반 데이터 수집**: Leader-Follower 구조를 활용해 조작자의 직관적인 조작 궤적과 상단 및 손목 카메라의 영상 정보를 동기화하여 고품질의 시연 데이터를 구축합니다.
+* **ACT(Action Chunking Transformer) 모델 적용**: 일정 길이의 연속된 행동 시퀀스를 한 번에 예측하는 ACT 모델을 도입하여, 시계열적 누적 오차를 줄이고 로봇 조작의 부드러움과 작업 연속성을 확보합니다.
+* **단일 모델 기반 멀티태스킹**: 데이터셋에 `observation.environment_state` 속성을 추가하여, 하나의 인공지능 모델이 Task 1(5개의 블록을 W 형태로 구역 내 배치)과 Task 2(블록 수직 적재)를 명확히 구분하고 수행하도록 설계합니다.
+* **서버-클라이언트 실시간 제어 분산 구조**: 카메라 영상 수집 및 실제 로봇 제어는 Jetson Orin Nano가 담당하고, 무거운 정책 추론은 연산 성능이 뛰어난 GPU 서버가 담당하는 분산 아키텍처를 구축하여 약 30Hz의 안정적인 실시간 제어 주기를 달성합니다.
 
-#### 2.2. 기존 서비스 대비 차별성 
-> 유사 서비스 비교 및 차별점 부각
+#### 2.2. 기존 서비스 대비 차별성
+기존 오픈소스 데이터셋을 활용한 선행 연구들은 단일한 검은색 배경에서 물체의 시작 위치가 고정된 제한적 환경을 전제로, 단일 블록을 통 안에 넣는 단순한 태스크만을 수행한다는 한계가 있었습니다. 본 프로젝트는 이를 극복하기 위해 다음과 같은 차별성을 가집니다.
+* **복잡한 시각적 환경 및 태스크 연속성 극복**: 검은색과 흰색이 교차하는 격자무늬 배경을 사용하여 비전 모델의 강건한 특징 추출을 유도하였으며, 단일 블록 조작을 넘어 5개의 블록을 연속적으로 파지하고 정밀하게 수직으로 적재하는 고난도 작업을 구현했습니다.
+* **다양한 공간적 상태 전이(State Transition) 학습**: 단순히 에피소드 수만 늘리는 것이 아니라 블록의 좌/우측 편향, 상/하측 집중, 경계 인접 등 다양한 위치 조건을 의도적으로 설계하여 모델의 공간적 일반화 성능을 극대화했습니다.
+* **DAgger(Dataset Aggregation) 파이프라인 도입**: 단순 행동 복제(Behavior Cloning) 시 발생하는 누적 오차 및 이탈 문제를 해결하기 위해, 로봇이 오작동을 일으키는 취약 상태에서 전문가가 실시간으로 개입해 올바른 복구 궤적을 제공하고 이를 재학습하는 혁신적인 능동적 교정 시스템을 구축했습니다.
 
-#### 2.3. 사회적 가치 도입 계획 
-> 프로젝트의 공공성, 지속 가능성, 환경 보호 등
+#### 2.3. 사회적 가치 도입 계획
+* **제조 및 물류 산업의 유연한 자동화 기여**: 작업 대상의 위치나 주변 환경이 변화할 때마다 사람이 제어 규칙을 추가해야 했던 기존 규칙 기반 제어의 한계를 벗어나, 환경 변화에 스스로 대응하는 지능형 시스템을 통해 산업 현장의 효율성과 생산성을 높입니다.
+* **경량화 모델 채택을 통한 친환경적 AI 실현**: 최소 수십억 개의 파라미터와 막대한 컴퓨팅 자원을 요구하는 거대 범용 로봇 모델 대신, 약 8,000만 개의 파라미터로 구성된 경량화 ACT 모델을 채택했습니다. 이를 통해 엣지 디바이스와 단일 GPU 환경에서도 원활한 학습 및 실시간 제어가 가능하도록 하여 전력 소모를 최소화합니다.
+* **안전 기반 제어를 통한 하드웨어 지속가능성 확보**: 인공지능 모델의 예측 오류가 하드웨어 파손으로 이어지지 않도록, 각 관절의 허용 위치 범위와 Step당 최대 변화량을 물리적으로 제한하는 이중 안전 로직을 구현하여 로봇 시스템의 안전성과 수명을 보장합니다.
+
 ### 3. 시스템 설계
 #### 3.1. 시스템 구성도
 > 이미지 혹은 텍스트로 시스템 아키텍쳐 작성
@@ -101,137 +70,3 @@
 > 개별적으로 느낀 점, 협업, 기술적 어려움 극복 사례 등
 
 ### 8. 참고 문헌 및 출처
-
-```
-
-## 5. README.md 작성팁 
-* 마크다운 언어를 이용해 README.md 파일을 작성할 때 참고할 수 있는 마크다운 언어 문법을 공유합니다.  
-* 다양한 예제와 보다 자세한 문법은 [이 문서](https://www.markdownguide.org/basic-syntax/)를 참고하세요.
-
-### 5.1. 헤더 Header
-```
-# This is a Header 1
-## This is a Header 2
-### This is a Header 3
-#### This is a Header 4
-##### This is a Header 5
-###### This is a Header 6
-####### This is a Header 7 은 지원되지 않습니다.
-```
-<br />
-
-### 5.2. 인용문 BlockQuote
-```
-> This is a first blockqute.
->	> This is a second blockqute.
->	>	> This is a third blockqute.
-```
-> This is a first blockqute.
->	> This is a second blockqute.
->	>	> This is a third blockqute.
-<br />
-
-### 5.3. 목록 List
-* **Ordered List**
-```
-1. first
-2. second
-3. third  
-```
-1. first
-2. second
-3. third
-<br />
-
-* **Unordered List**
-```
-* 하나
-  * 둘
-
-+ 하나
-  + 둘
-
-- 하나
-  - 둘
-```
-* 하나
-  * 둘
-
-+ 하나
-  + 둘
-
-- 하나
-  - 둘
-<br />
-
-### 5.4. 코드 CodeBlock
-* 코드 블럭 이용 '``'
-```
-여러줄 주석 "```" 이용
-"```
-#include <stdio.h>
-int main(void){
-  printf("Hello world!");
-  return 0;
-}
-```"
-
-단어 주석 "`" 이용
-"`Hello world`"
-
-* 큰 따움표(") 없이 사용하세요.
-``` 
-<br />
-
-### 5.5. 링크 Link
-```
-[Title](link)
-[부산대학교 정보컴퓨터공학부](https://cse.pusan.ac.kr/cse/index..do)
-
-<link>
-<https://cse.pusan.ac.kr/cse/index..do>
-``` 
-[부산대학교 정보컴퓨터공학부](https://cse.pusan.ac.kr/cse/index..do)
-
-<https://cse.pusan.ac.kr/cse/index..do>
-<br />
-
-### 5.6. 강조 Highlighting
-```
-*single asterisks*
-_single underscores_
-**double asterisks**
-__double underscores__
-~~cancelline~~
-```
-*single asterisks* <br />
-_single underscores_ <br />
-**double asterisks** <br />
-__double underscores__ <br />
-~~cancelline~~  <br />
-<br />
-
-### 5.7. 이미지 Image
-```
-<img src="image URL" width="600px" title="Title" alt="Alt text"></img>
-![Alt text](image URL "Optional title")
-```
-- 웹에서 작성한다면 README.md 내용 안으로 이미지를 드래그 앤 드롭하면 이미지가 생성됩니다.
-- 웹이 아닌 로컬에서 작성한다면, github issue에 이미지를 드래그 앤 드롭하여 image url 을 얻을 수 있습니다. (URL만 복사하고 issue는 제출 안 함.)
-  <img src="https://github.com/user-attachments/assets/0fe3bff1-7a2b-4df3-b230-cac4ef5f6d0b" alt="이슈에 image 올림" width="600" />
-  <img src="https://github.com/user-attachments/assets/251c6d42-b36b-4ad4-9cfa-fa2cc67a9a50" alt="image url 복사" width="600" />
-
-
-### 5.8. 유튜브 영상 추가
-```markdown
-[![영상 이름](유튜브 영상 썸네일 URL)](유튜브 영상 URL)
-[![부산대학교 정보컴퓨터공학부 소개](http://img.youtube.com/vi/zh_gQ_lmLqE/0.jpg)](https://www.youtube.com/watch?v=zh_gQ_lmLqE)    
-```
-[![부산대학교 정보컴퓨터공학부 소개](http://img.youtube.com/vi/zh_gQ_lmLqE/0.jpg)](https://www.youtube.com/watch?v=zh_gQ_lmLqE)    
-
-- 이때 유튜브 영상 썸네일 URL은 유투브 영상 URL로부터 다음과 같이 얻을 수 있습니다.
-
-- `Youtube URL`: https://www.youtube.com/watch?v={동영상 ID}
-- `Youtube Thumbnail URL`: http://img.youtube.com/vi/{동영상 ID}/0.jpg 
-- 예를 들어, https://www.youtube.com/watch?v=zh_gQ_lmLqE 라고 하면 썸네일의 주소는 http://img.youtube.com/vi/zh_gQ_lmLqE/0.jpg 이다.
-
